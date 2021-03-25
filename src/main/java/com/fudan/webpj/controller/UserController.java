@@ -2,30 +2,59 @@ package com.fudan.webpj.controller;
 
 import com.fudan.webpj.entity.User;
 import com.fudan.webpj.service.UserService;
-import org.apache.ibatis.annotations.Param;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+
 
 @RestController
 public class UserController {
-    private UserService userService;
+    private final UserService userService;
 
     @Autowired
-    public UserController(UserService userService){
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
-    @RequestMapping("getUser/{id}")
-    public User GetUser(@PathVariable int id){
-        return userService.getUserById(id);
+    private final Logger logger = LoggerFactory.getLogger(UserController.class);
+
+    @RequestMapping("/login")
+    public ResponseEntity<Object> login(@RequestParam("id") String id, @RequestParam("password") String password) {
+        HashMap<String, Object> hashMap = new HashMap<>();
+        User user = userService.login(id, password);
+        hashMap.put("user", user);
+        if (user != null) {
+            logger.info("login:" + user.toString());
+        }else {
+            logger.info("用户名或密码错误");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return ResponseEntity.ok(hashMap);
     }
 
     @RequestMapping("/register")
-    public String GetUser2(@RequestParam("id") int id){
-        return userService.getUserById(id).toString();
+    public ResponseEntity<Object> register(
+            @RequestParam("id") String id,
+            @RequestParam("password") String password,
+            @RequestParam("age") int age,
+            @RequestParam("gender") int gender
+    ) {
+        HashMap<String, Object> hashMap = new HashMap<>();
+        User user = userService.register(id, password, age, gender);
+        hashMap.put("user", user);
+        if (user != null) {
+            logger.info("new user:" + user.toString());
+        }else {
+            logger.info("用户名已存在");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return ResponseEntity.ok(hashMap);
     }
 }

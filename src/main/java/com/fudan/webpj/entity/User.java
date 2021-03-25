@@ -1,27 +1,30 @@
 package com.fudan.webpj.entity;
 
 import javax.persistence.Entity;
+import java.util.Objects;
 
 public class User {
-    private Integer id;
-    private String userName;
+    private String id;
     private String passWord;
-    private String realName;
+    private int age;
+    private int gender;
 
-    public Integer getId() {
+    public User() {
+    }
+
+    public User(String id, String passWord, int age, int gender) {
+        this.id = id;
+        this.passWord = passWord;
+        this.age = age;
+        this.gender = gender;
+    }
+
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
     }
 
     public String getPassWord() {
@@ -32,21 +35,29 @@ public class User {
         this.passWord = passWord;
     }
 
-    public String getRealName() {
-        return realName;
+    public int getAge() {
+        return age;
     }
 
-    public void setRealName(String realName) {
-        this.realName = realName;
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public int getGender() {
+        return gender;
+    }
+
+    public void setGender(int gender) {
+        this.gender = gender;
     }
 
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", userName='" + userName + '\'' +
                 ", passWord='" + passWord + '\'' +
-                ", realName='" + realName + '\'' +
+                ", age='" + age + '\'' +
+                ", gender='" + gender + '\'' +
                 '}';
     }
 }

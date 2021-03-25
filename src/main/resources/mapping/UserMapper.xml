@@ -3,10 +3,10 @@
 <mapper namespace="com.fudan.webpj.repository.UserRepository">
 
     <resultMap id="BaseResultMap" type="com.fudan.webpj.entity.User">
-        <result column="id" jdbcType="INTEGER" property="id"/>
-        <result column="userName" jdbcType="VARCHAR" property="userName"/>
-        <result column="passWord" jdbcType="VARCHAR" property="passWord"/>
-        <result column="realName" jdbcType="VARCHAR" property="realName"/>
+        <result column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="age" jdbcType="INTEGER" property="age"/>
+        <result column="gender" jdbcType="INTEGER" property="gender"/>
     </resultMap>
 
     <select id="findUserById" resultType="com.fudan.webpj.entity.User">
@@ -15,6 +15,10 @@
         where id = #{id}
     </select>
 
+    <insert id="addNewUser">
+        insert into web_pj.user(id, password, age, gender)
+        values (#{id}, #{password}, #{age}, #{gender})
+    </insert>
 
 
 </mapper>
