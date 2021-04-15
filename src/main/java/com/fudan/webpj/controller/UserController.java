@@ -5,6 +5,7 @@ import com.fudan.webpj.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -62,19 +63,11 @@ public class UserController {
         return ResponseEntity.ok(hashMap);
     }
 
-    @RequestMapping("/test")
-    public ResponseEntity<Object> test(
-            @RequestParam("id") String id
-    ) {
+    @RequestMapping("/listAllUsers")
+    public ResponseEntity<Object> listAllUsers() throws JSONException {
         HashMap<String, Object> hashMap = new HashMap<>();
-        User user = userService.test(id);
-        if (user != null) {
-            hashMap.put("user", user.getId());
-            logger.info(user.toString());
-        } else {
-            logger.info("用户名不存在");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        User[] users = userService.listAllUsers();
+        hashMap.put("allUsers", users);
         return ResponseEntity.ok(hashMap);
     }
 }

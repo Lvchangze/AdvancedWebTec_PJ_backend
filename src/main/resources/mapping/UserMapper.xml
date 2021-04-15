@@ -20,5 +20,9 @@
         values (#{id}, #{password}, #{age}, #{gender})
     </insert>
 
+    <select id="listAll" resultType="com.fudan.webpj.entity.User">
+        select *
+        from weblab2.user
+    </select>
 
 </mapper>

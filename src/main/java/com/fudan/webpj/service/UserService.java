@@ -38,7 +38,7 @@ public class UserService {
         return userRepository.findUserById(id);
     }
 
-    public User test(String id) {
-        return userRepository.findUserById(id);
+    public User[] listAllUsers() {
+        return userRepository.listAll();
     }
 }
