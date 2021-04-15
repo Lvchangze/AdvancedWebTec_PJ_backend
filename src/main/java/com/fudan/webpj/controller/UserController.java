@@ -1,11 +1,9 @@
 package com.fudan.webpj.controller;
-
 import com.fudan.webpj.entity.User;
 import com.fudan.webpj.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -64,7 +62,7 @@ public class UserController {
     }
 
     @RequestMapping("/listAllUsers")
-    public ResponseEntity<Object> listAllUsers() throws JSONException {
+    public ResponseEntity<Object> listAllUsers() {
         HashMap<String, Object> hashMap = new HashMap<>();
         User[] users = userService.listAllUsers();
         hashMap.put("allUsers", users);
