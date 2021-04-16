@@ -22,7 +22,7 @@
 
     <select id="listAll" resultType="com.fudan.webpj.entity.User">
         select *
-        from weblab2.user
+        from web_pj.user
     </select>
 
 </mapper>
