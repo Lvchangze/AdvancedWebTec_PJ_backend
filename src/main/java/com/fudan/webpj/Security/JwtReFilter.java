@@ -5,8 +5,6 @@ import com.fudan.webpj.repository.UserRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -15,7 +13,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 @Component
 public class JwtReFilter extends OncePerRequestFilter {
@@ -41,15 +38,18 @@ public class JwtReFilter extends OncePerRequestFilter {
             FilterChain filterChain) throws ServletException, IOException {
         String authorization = request.getHeader("Authorization");
         System.out.println(authorization);
+        System.out.println(request.getRequestURI());
         if (request.getRequestURI().equals(validateUrl0)
                 || request.getRequestURI().equals(validateUrl1)
         ) {
+            System.out.println("1");
             //在登陆或者注册，需要产生token
             filterChain.doFilter(request, response);
         } else if (authorization != null
                 && !authorization.isEmpty()
                 && authorization.startsWith(tokenHeader)
         ) {
+            System.out.println("2");
             String token = jwtTokenUtil.resolveToken(authorization);
             System.out.println("token:" + token);
             try {
@@ -67,6 +67,7 @@ public class JwtReFilter extends OncePerRequestFilter {
                 response401(response);
             }
         } else {
+            System.out.println("3");
             System.out.println("token为null或者token为空或者token的头部不以bearer开头");
             response401(response);
         }
