@@ -24,7 +24,6 @@ public class UserService {
         }
         String[] result = new String[2];
         result[0] = jwtTokenUtil.generateToken(user);
-        System.out.println(result[0]);
         result[1] = user.getId();
         return result;
     }

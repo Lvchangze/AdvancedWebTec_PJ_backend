@@ -40,6 +40,7 @@ public class JwtReFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
         String authorization = request.getHeader("Authorization");
+        System.out.println(authorization);
         if (request.getRequestURI().equals(validateUrl0)
                 || request.getRequestURI().equals(validateUrl1)
         ) {
@@ -56,15 +57,22 @@ public class JwtReFilter extends OncePerRequestFilter {
                 User user = userRepository.findUserById(id);
                 if (!jwtTokenUtil.validateToken(token) || user == null) {
                     System.out.println("超时或者用户不存在");
+                    response401(response);
                 } else {
                     System.out.println("正常");
                     filterChain.doFilter(request, response);
                 }
             } catch (ExpiredJwtException ex) {
                 System.out.println("401.1");
+                response401(response);
             }
         } else {
             System.out.println("token为null或者token为空或者token的头部不以bearer开头");
+            response401(response);
         }
+    }
+
+    private void response401(HttpServletResponse response){
+        response.setStatus(401);
     }
 }
