@@ -9,10 +9,10 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@ServerEndpoint("/ws")
+@ServerEndpoint("/chat")
 @Component
 @Slf4j
-public class WebSocketServer {
+public class WebSocketChat {
     /**
      * 存放所有在线的客户端
      */

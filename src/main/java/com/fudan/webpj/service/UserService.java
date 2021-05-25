@@ -1,6 +1,6 @@
 package com.fudan.webpj.service;
 
-import com.fudan.webpj.Security.JwtTokenUtil;
+import com.fudan.webpj.security.JwtTokenUtil;
 import com.fudan.webpj.entity.User;
 import com.fudan.webpj.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

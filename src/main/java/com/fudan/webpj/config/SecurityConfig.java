@@ -1,6 +1,6 @@
 package com.fudan.webpj.config;
 
-import com.fudan.webpj.Security.JwtReFilter;
+import com.fudan.webpj.security.JwtReFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

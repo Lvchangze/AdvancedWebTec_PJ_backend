@@ -1,4 +1,4 @@
-package com.fudan.webpj.Security;
+package com.fudan.webpj.security;
 
 public class JwtInfo {
     private String uid;

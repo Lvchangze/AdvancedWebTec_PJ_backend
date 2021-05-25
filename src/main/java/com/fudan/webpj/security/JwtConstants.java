@@ -1,4 +1,4 @@
-package com.fudan.webpj.Security;
+package com.fudan.webpj.security;
 
 public class JwtConstants {
     //用于token的chaims保存有效信息字段名

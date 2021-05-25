@@ -1,4 +1,4 @@
-package com.fudan.webpj.Security;
+package com.fudan.webpj.security;
 
 import com.fudan.webpj.entity.User;
 import io.jsonwebtoken.*;
