@@ -5,9 +5,7 @@ import com.fudan.webpj.controller.UserController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
-
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
@@ -17,7 +15,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-@ServerEndpoint("/{roomId}/{action}")
+@ServerEndpoint("/ws/{roomId}/{action}")
 @Slf4j
 public class WebSocketServer {
     private static final Map<Integer, Set<Session>> roomList = new ConcurrentHashMap<>();
@@ -27,7 +25,9 @@ public class WebSocketServer {
 
     @OnOpen
     public void onOpen(@PathParam("roomId") int roomId,
+                       @PathParam("action") String action,
                        Session session) {
+        System.out.println(roomId + action);
         if (!roomList.containsKey(roomId)) {//房间不存在时，创建房间
             Set<Session> room = new HashSet<>();
             room.add(session);
@@ -74,7 +74,7 @@ public class WebSocketServer {
     }
 
     @OnClose
-    public void onClose(@PathParam("roomId") int roomId, Session session) {
+    public void onClose(@PathParam("roomId") int roomId,@PathParam("action") String action, Session session) {
         roomList.get(roomId).remove(session);
         broadcast(
                 roomId,

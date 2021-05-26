@@ -22,8 +22,6 @@ public class JwtReFilter extends OncePerRequestFilter {
     private String validateUrl1;
     @Value("${validate.url2}")
     private String validateUrl2;
-    @Value("${validate.url3}")
-    private String validateUrl3;
     @Value("${token_Header}")
     private String tokenHeader;
     private final JwtTokenUtil jwtTokenUtil;
@@ -45,10 +43,9 @@ public class JwtReFilter extends OncePerRequestFilter {
         System.out.println(request.getRequestURI());
         if (request.getRequestURI().equals(validateUrl0)
                 || request.getRequestURI().equals(validateUrl1)
-                || request.getRequestURI().equals(validateUrl2)
-                || request.getRequestURI().equals(validateUrl3)
+                || request.getRequestURI().contains(validateUrl2)
         ) {
-            //在登陆或者注册，需要产生token
+            //在登陆或者注册
             filterChain.doFilter(request, response);
         } else if (authorization != null
                 && !authorization.isEmpty()
