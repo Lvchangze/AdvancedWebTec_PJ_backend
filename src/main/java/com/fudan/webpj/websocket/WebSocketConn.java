@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -69,22 +68,6 @@ public class WebSocketConn {
     private void sendAll(String message) {
         for (Map.Entry<String, Session> sessionEntry : clients.entrySet()) {
             sessionEntry.getValue().getAsyncRemote().sendText(message);
-        }
-    }
-
-    /**
-     * 单发发送消息
-     *
-     * @param message 消息对象
-     */
-    private void sendTo(Message message) {
-        Session s = clients.get(message.getUserId());
-        if (s != null) {
-            try {
-                s.getBasicRemote().sendText(message.getMessage());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 }

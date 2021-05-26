@@ -1,90 +1,69 @@
 package com.fudan.webpj.websocket;
 
-import lombok.extern.slf4j.Slf4j;
+import com.alibaba.fastjson.JSON;
 import org.springframework.stereotype.Component;
 
+import lombok.extern.slf4j.Slf4j;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@ServerEndpoint("/chat")
 @Component
+@ServerEndpoint("/chat")//标记此类为服务端
 @Slf4j
 public class WebSocketChat {
-    /**
-     * 存放所有在线的客户端
-     */
-    private static final Map<String, Session> clients = new ConcurrentHashMap<>();
+    private static final Map<String, Session> onlineSessions = new ConcurrentHashMap<>();
 
     @OnOpen
     public void onOpen(Session session) {
         log.info("有新的客户端连接了: {}", session.getId());
-        //将新用户存入在线的组
-        clients.put(session.getId(), session);
+        onlineSessions.put(session.getId(), session);
+        sendMessageToAll(Message.jsonStr(Message.ENTER, "", "", onlineSessions.size()));
     }
 
     /**
-     * 客户端关闭
-     *
-     * @param session session
+     * 当客户端发送消息：1.获取它的用户名和消息 2.发送消息给所有人
+     * <p>
+     * PS: 这里约定传递的消息为JSON字符串 方便传递更多参数！
+     */
+    @OnMessage
+    public void onMessage(Session session, String jsonStr) {
+        log.info("服务端收到客户端发来的JSON消息: {}", jsonStr);
+        Message message = JSON.parseObject(jsonStr, Message.class);
+        sendMessageToAll(Message.jsonStr(Message.SPEAK, message.getUserId(), message.getMsg(), onlineSessions.size()));
+    }
+
+    /**
+     * 当关闭连接：1.移除会话对象 2.更新在线人数
      */
     @OnClose
     public void onClose(Session session) {
         log.info("有用户断开了, id为:{}", session.getId());
-        //将掉线的用户移除在线的组里
-        clients.remove(session.getId());
+        onlineSessions.remove(session.getId());
+        sendMessageToAll(Message.jsonStr(Message.QUIT, "", "", onlineSessions.size()));
     }
 
     /**
-     * 发生错误
-     *
-     * @param throwable e
+     * 当通信发生异常：打印错误日志
      */
     @OnError
-    public void onError(Throwable throwable) {
-        throwable.printStackTrace();
-    }
-
-
-    /**
-     * 收到客户端发来消息
-     *
-     * @param message 消息对象
-     */
-    @OnMessage
-    public void onMessage(String message) {
-        log.info("服务端收到客户端发来的消息: {}", message);
-        //群发
-        this.sendAll(message);
-    }
-
-
-    /**
-     * 群发消息
-     *
-     * @param message 消息内容
-     */
-    private void sendAll(String message) {
-        for (Map.Entry<String, Session> sessionEntry : clients.entrySet()) {
-            sessionEntry.getValue().getAsyncRemote().sendText(message);
-        }
+    public void onError(Session session, Throwable error) {
+        error.printStackTrace();
     }
 
     /**
-     * 单发发送消息
-     *
-     * @param message 消息对象
+     * 公共方法：发送信息给所有人
      */
-    private void sendTo(Message message) {
-        Session s = clients.get(message.getUserId());
-        if (s != null) {
+    private static void sendMessageToAll(String msg) {
+        onlineSessions.forEach((id, session) -> {
             try {
-                s.getBasicRemote().sendText(message.getMessage());
+                session.getBasicRemote().sendText(msg);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
+        });
     }
+
 }
