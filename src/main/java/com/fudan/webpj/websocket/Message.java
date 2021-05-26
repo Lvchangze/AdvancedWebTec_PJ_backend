@@ -5,11 +5,14 @@ import com.alibaba.fastjson.JSON;
 /**
  * WebSocket 聊天消息类
  */
-public class ChatMessage {
+public class Message {
 
     public static final String ENTER = "ENTER";
     public static final String SPEAK = "SPEAK";
     public static final String QUIT = "QUIT";
+    public static final String MOVE = "MOVE";
+    public static final String LIFT = "LIFT";
+    public static final String DROP = "DROP";
 
     private String type;//消息类型
 
@@ -21,11 +24,11 @@ public class ChatMessage {
 
     private int onlineCount; //在线用户数
 
-    public static String jsonStr(String type, String username, String msg, String time, int onlineTotal) {
-        return JSON.toJSONString(new ChatMessage(type, username, msg, time, onlineTotal));
+    public static String jsonStr(String type, String userId, String msg, String time, int onlineTotal) {
+        return JSON.toJSONString(new Message(type, userId, msg, time, onlineTotal));
     }
 
-    public ChatMessage(String type, String userId, String msg, String time, int onlineCount) {
+    public Message(String type, String userId, String msg, String time, int onlineCount) {
         this.type = type;
         this.userId = userId;
         this.msg = msg;

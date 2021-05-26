@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
+
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
@@ -15,51 +16,36 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-@ServerEndpoint("/ws/{roomId}/{action}")
+@ServerEndpoint(value = "/ws/{roomId}")
 @Slf4j
 public class WebSocketServer {
-    private static final Map<Integer, Set<Session>> roomList = new ConcurrentHashMap<>();
+    private static final Map<Integer, Map<String, Session>> roomList = new ConcurrentHashMap<>();
 
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @OnOpen
-    public void onOpen(@PathParam("roomId") int roomId,
-                       @PathParam("action") String action,
-                       Session session) {
-        System.out.println(roomId + action);
-        if (!roomList.containsKey(roomId)) {//房间不存在时，创建房间
-            Set<Session> room = new HashSet<>();
-            room.add(session);
+    public void onOpen(@PathParam("roomId") int roomId, Session session) {
+        //房间不存在时，创建房间
+        if (!roomList.containsKey(roomId)) {
+            Map<String, Session> room = new ConcurrentHashMap<>();
             roomList.put(roomId, room);
-        } else {//房间已存在，直接添加用户到相应的房间
-            roomList.get(roomId).add(session);
         }
-        broadcast(
-                roomId,
-                ChatMessage.jsonStr(
-                        ChatMessage.ENTER,
-                        "",
-                        "",
-                        formatter.format(new Date(System.currentTimeMillis())),
-                        roomList.get(roomId).size()
-                )
-        );
-        System.out.println("A client has connected!");
+        System.out.println(roomList.get(roomId).size());
     }
 
     @OnMessage
     public void onMessage(@PathParam("roomId") int roomId,
-                          @PathParam("action") String action,
                           Session session, String msg) {
-        switch (action) {
-            case "SPEAK":
-                logger.info("SPEAK");
-                ChatMessage message = JSON.parseObject(msg, ChatMessage.class);
+        Message message = JSON.parseObject(msg, Message.class);
+        switch (message.getType()) {
+            case "ENTER":
+                logger.info("ENTER");
+                roomList.get(roomId).put(message.getUserId(), session);
                 broadcast(
                         roomId,
-                        ChatMessage.jsonStr(
-                                ChatMessage.SPEAK,
+                        Message.jsonStr(
+                                Message.ENTER,
                                 message.getUserId(),
                                 message.getMsg(),
                                 formatter.format(new Date(System.currentTimeMillis())),
@@ -67,6 +53,34 @@ public class WebSocketServer {
                         )
                 );
                 break;
+            case "QUIT":
+                logger.info("QUIT");
+                roomList.get(roomId).remove(message.getUserId());
+                broadcast(
+                        roomId,
+                        Message.jsonStr(
+                                Message.QUIT,
+                                message.getUserId(),
+                                message.getMsg(),
+                                formatter.format(new Date(System.currentTimeMillis())),
+                                roomList.get(roomId).size()
+                        )
+                );
+                break;
+            case "SPEAK":
+                logger.info("SPEAK");
+                broadcast(
+                        roomId,
+                        Message.jsonStr(
+                                Message.SPEAK,
+                                message.getUserId(),
+                                message.getMsg(),
+                                formatter.format(new Date(System.currentTimeMillis())),
+                                roomList.get(roomId).size()
+                        )
+                );
+                break;
+
             case "MOVE":
                 logger.info("MOVE");
                 break;
@@ -74,29 +88,22 @@ public class WebSocketServer {
     }
 
     @OnClose
-    public void onClose(@PathParam("roomId") int roomId,@PathParam("action") String action, Session session) {
-        roomList.get(roomId).remove(session);
-        broadcast(
-                roomId,
-                ChatMessage.jsonStr(
-                        ChatMessage.QUIT,
-                        "",
-                        "",
-                        formatter.format(new Date(System.currentTimeMillis())),
-                        roomList.get(roomId).size()
-                )
-        );
-        System.out.println("A client has disconnected!");
+    public void onClose(@PathParam("roomId") int roomId, Session session) {
+        //房间无人时，删除房间
+        if(roomList.get(roomId).size() == 0){
+            roomList.remove(roomId);
+        }
     }
 
     private static void broadcast(int roomId, String msg) {
-        for (Session session : roomList.get(roomId)) {
+        Map<String, Session> room = roomList.get(roomId);
+        room.forEach((userId, session) -> {
             try {
                 session.getBasicRemote().sendText(msg);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
+        });
     }
 
 }
