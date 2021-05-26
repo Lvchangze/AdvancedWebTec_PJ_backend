@@ -48,14 +48,12 @@ public class JwtReFilter extends OncePerRequestFilter {
                 || request.getRequestURI().equals(validateUrl2)
                 || request.getRequestURI().equals(validateUrl3)
         ) {
-            System.out.println("1");
             //在登陆或者注册，需要产生token
             filterChain.doFilter(request, response);
         } else if (authorization != null
                 && !authorization.isEmpty()
                 && authorization.startsWith(tokenHeader)
         ) {
-            System.out.println("2");
             String token = jwtTokenUtil.resolveToken(authorization);
             System.out.println("token:" + token);
             try {
@@ -73,7 +71,6 @@ public class JwtReFilter extends OncePerRequestFilter {
                 response401(response);
             }
         } else {
-            System.out.println("3");
             System.out.println("token为null或者token为空或者token的头部不以bearer开头");
             response401(response);
         }
