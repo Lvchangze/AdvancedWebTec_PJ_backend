@@ -28,16 +28,16 @@ public class UserService {
         return result;
     }
 
-    public User register(String id, String password, int age, int gender) {
+    public User register(String id, String password, int age, int gender, String character) {
         //用户名已经存在
         if (userRepository.findUserById(id) != null) {
             return null;
         }
-        userRepository.addNewUser(id, password, age, gender);
+        userRepository.addNewUser(id, password, age, gender, character);
         return userRepository.findUserById(id);
     }
 
-    public User[] listAllUsers() {
-        return userRepository.listAll();
+    public User getUserInfo(String id) {
+        return userRepository.findUserById(id);
     }
 }

@@ -2,11 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.fudan.webpj.repository.UserRepository">
 
-    <resultMap id="BaseResultMap" type="com.fudan.webpj.entity.User">
+    <resultMap id="UserResultMap" type="com.fudan.webpj.entity.User">
         <result column="id" jdbcType="VARCHAR" property="id"/>
         <result column="password" jdbcType="VARCHAR" property="password"/>
         <result column="age" jdbcType="INTEGER" property="age"/>
         <result column="gender" jdbcType="INTEGER" property="gender"/>
+        <result column="character" jdbcType="VARCHAR" property="character"/>
     </resultMap>
 
     <select id="findUserById" resultType="com.fudan.webpj.entity.User">
@@ -16,13 +17,8 @@
     </select>
 
     <insert id="addNewUser">
-        insert into web_pj.user(id, password, age, gender)
-        values (#{id}, #{password}, #{age}, #{gender})
+        insert into web_pj.user(id, password, age, gender, character)
+        values (#{id}, #{password}, #{age}, #{gender}, #{character})
     </insert>
-
-    <select id="listAll" resultType="com.fudan.webpj.entity.User">
-        select *
-        from web_pj.user
-    </select>
 
 </mapper>

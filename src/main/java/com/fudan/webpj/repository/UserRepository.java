@@ -7,7 +7,5 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository {
     User findUserById(String id);
 
-    void addNewUser(String id, String password, int age, int gender);
-
-    User[] listAll();
+    void addNewUser(String id, String password, int age, int gender, String character);
 }

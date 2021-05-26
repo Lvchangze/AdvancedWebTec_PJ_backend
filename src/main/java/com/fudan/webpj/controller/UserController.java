@@ -1,4 +1,5 @@
 package com.fudan.webpj.controller;
+
 import com.fudan.webpj.entity.User;
 import com.fudan.webpj.service.UserService;
 import org.slf4j.Logger;
@@ -14,13 +15,12 @@ import java.util.HashMap;
 @RestController
 public class UserController {
     private final UserService userService;
+    private final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
-
-    private final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @RequestMapping("/login")
     public ResponseEntity<Object> login(
@@ -45,10 +45,11 @@ public class UserController {
             @RequestParam("id") String id,
             @RequestParam("password") String password,
             @RequestParam("age") int age,
-            @RequestParam("gender") int gender
+            @RequestParam("gender") int gender,
+            @RequestParam("character") String character
     ) {
         HashMap<String, Object> hashMap = new HashMap<>();
-        User user = userService.register(id, password, age, gender);
+        User user = userService.register(id, password, age, gender, character);
         hashMap.put("user", user);
         if (user != null) {
             logger.info("new user:" + user);
@@ -59,11 +60,11 @@ public class UserController {
         return ResponseEntity.ok(hashMap);
     }
 
-    @RequestMapping("/listAllUsers")
-    public ResponseEntity<Object> listAllUsers() {
+    @RequestMapping("/getUserInfo")
+    public ResponseEntity<Object> getUserInfo(@RequestParam("userId") String id) {
         HashMap<String, Object> hashMap = new HashMap<>();
-        User[] users = userService.listAllUsers();
-        hashMap.put("allUsers", users);
+        User user = userService.getUserInfo(id);
+        hashMap.put("user", user);
         return ResponseEntity.ok(hashMap);
     }
 }

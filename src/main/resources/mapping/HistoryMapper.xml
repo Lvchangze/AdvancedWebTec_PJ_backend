@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fudan.webpj.repository.HistoryRepository">
+
+    <resultMap id="HistoryResultMap" type="com.fudan.webpj.entity.History">
+        <result column="type" jdbcType="VARCHAR" property="type"/>
+        <result column="userId" jdbcType="VARCHAR" property="userId"/>
+        <result column="message" jdbcType="VARCHAR" property="message"/>
+        <result column="time" jdbcType="VARCHAR" property="time"/>
+        <result column="roomId" jdbcType="INTEGER" property="roomId"/>
+    </resultMap>
+
+    <select id="findHistoryByUserId" resultType="com.fudan.webpj.entity.History">
+        select *
+        from web_pj.history
+        where userId = #{userId}
+    </select>
+
+    <insert id="addNewHistory">
+        insert into web_pj.history(type, userId, message, time, roomId)
+        values (#{type}, #{userId}, #{time}, #{roomId})
+    </insert>
+
+</mapper>

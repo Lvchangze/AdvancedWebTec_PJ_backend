@@ -1,22 +1,21 @@
 package com.fudan.webpj.entity;
 
-import javax.persistence.Entity;
-import java.util.Objects;
-
 public class User {
     private String id;
     private String passWord;
     private int age;
     private int gender;
+    private String character;
 
     public User() {
     }
 
-    public User(String id, String passWord, int age, int gender) {
+    public User(String id, String passWord, int age, int gender, String character) {
         this.id = id;
         this.passWord = passWord;
         this.age = age;
         this.gender = gender;
+        this.character = character;
     }
 
     public String getId() {
@@ -51,6 +50,14 @@ public class User {
         this.gender = gender;
     }
 
+    public String getCharacter() {
+        return character;
+    }
+
+    public void setCharacter(String character) {
+        this.character = character;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -58,6 +65,7 @@ public class User {
                 ", passWord='" + passWord + '\'' +
                 ", age='" + age + '\'' +
                 ", gender='" + gender + '\'' +
+                ", character" + character + '\'' +
                 '}';
     }
 }
