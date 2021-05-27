@@ -16,7 +16,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-@ServerEndpoint(value = "/ws/{roomId}")
+@ServerEndpoint(value = "/ws/{roomId}/{userId}")
 @Slf4j
 public class WebSocketServer {
     private static final Map<Integer, Map<String, Session>> roomList = new ConcurrentHashMap<>();
@@ -25,17 +25,23 @@ public class WebSocketServer {
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @OnOpen
-    public void onOpen(@PathParam("roomId") int roomId, Session session) {
+    public void onOpen(@PathParam("roomId") int roomId,
+                       @PathParam("userId") String userId,
+                       Session session) {
         //房间不存在时，创建房间
         if (!roomList.containsKey(roomId)) {
             Map<String, Session> room = new ConcurrentHashMap<>();
+            room.put(userId, session);
             roomList.put(roomId, room);
+        }else {
+            roomList.get(roomId).put(userId, session);
         }
         System.out.println(roomList.get(roomId).size());
     }
 
     @OnMessage
     public void onMessage(@PathParam("roomId") int roomId,
+                          @PathParam("userId") String userId,
                           Session session, String msg) {
         Message message = JSON.parseObject(msg, Message.class);
         switch (message.getType()) {
@@ -46,7 +52,8 @@ public class WebSocketServer {
                         roomId,
                         Message.jsonStr(
                                 Message.ENTER,
-                                message.getUserId(),
+//                                message.getUserId(),
+                                userId,
                                 message.getMsg(),
                                 formatter.format(new Date(System.currentTimeMillis())),
                                 roomList.get(roomId).size()
@@ -60,20 +67,23 @@ public class WebSocketServer {
                         roomId,
                         Message.jsonStr(
                                 Message.QUIT,
-                                message.getUserId(),
+//                                message.getUserId(),
+                                userId,
                                 message.getMsg(),
                                 formatter.format(new Date(System.currentTimeMillis())),
                                 roomList.get(roomId).size()
                         )
                 );
                 break;
+
             case "SPEAK":
                 logger.info("SPEAK");
                 broadcast(
                         roomId,
                         Message.jsonStr(
                                 Message.SPEAK,
-                                message.getUserId(),
+//                                message.getUserId(),
+                                userId,
                                 message.getMsg(),
                                 formatter.format(new Date(System.currentTimeMillis())),
                                 roomList.get(roomId).size()
@@ -88,11 +98,11 @@ public class WebSocketServer {
     }
 
     @OnClose
-    public void onClose(@PathParam("roomId") int roomId, Session session) {
-        //房间无人时，删除房间
-        if(roomList.get(roomId).size() == 0){
-            roomList.remove(roomId);
-        }
+    public void onClose(@PathParam("roomId") int roomId,
+                        @PathParam("userId") String userId,
+                        Session session) {
+        roomList.get(roomId).remove(userId);
+
     }
 
     private static void broadcast(int roomId, String msg) {

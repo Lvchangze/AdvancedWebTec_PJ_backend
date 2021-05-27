@@ -67,4 +67,19 @@ public class UserController {
         hashMap.put("user", user);
         return ResponseEntity.ok(hashMap);
     }
+
+    @RequestMapping("/changeCharacter")
+    public ResponseEntity<Object> changeCharacter(
+            @RequestParam("userId") String id,
+            @RequestParam("character") String character
+    ){
+        HashMap<String, Object> hashMap = new HashMap<>();
+        User user = userService.changeCharacter(id, character);
+        if (user != null){
+            hashMap.put("result", 0);
+        }else {
+            hashMap.put("result", -1);
+        }
+        return ResponseEntity.ok(hashMap);
+    }
 }

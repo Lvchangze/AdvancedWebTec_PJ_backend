@@ -21,4 +21,10 @@
         values (#{id}, #{password}, #{age}, #{gender}, #{character})
     </insert>
 
+    <update id="changeCharacter">
+        update web_pj.user
+        set user.character = #{character}
+        where user.id = #{id}
+    </update>
+
 </mapper>

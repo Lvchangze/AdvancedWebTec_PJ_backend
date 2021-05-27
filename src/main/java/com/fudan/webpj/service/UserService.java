@@ -40,4 +40,12 @@ public class UserService {
     public User getUserInfo(String id) {
         return userRepository.findUserById(id);
     }
+
+    public User changeCharacter(String id, String character){
+        if(userRepository.findUserById(id) == null){
+            return null;
+        }
+        userRepository.changeCharacter(id, character);
+        return userRepository.findUserById(id);
+    }
 }

@@ -8,4 +8,6 @@ public interface UserRepository {
     User findUserById(String id);
 
     void addNewUser(String id, String password, int age, int gender, String character);
+
+    void changeCharacter(String id, String character);
 }
