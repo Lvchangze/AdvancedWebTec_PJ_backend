@@ -7,7 +7,7 @@
         <result column="password" jdbcType="VARCHAR" property="password"/>
         <result column="age" jdbcType="INTEGER" property="age"/>
         <result column="gender" jdbcType="INTEGER" property="gender"/>
-        <result column="character" jdbcType="VARCHAR" property="character"/>
+        <result column="role" jdbcType="VARCHAR" property="role"/>
     </resultMap>
 
     <select id="findUserById" resultType="com.fudan.webpj.entity.User">
@@ -17,13 +17,13 @@
     </select>
 
     <insert id="addNewUser">
-        insert into web_pj.user(id, password, age, gender, character)
-        values (#{id}, #{password}, #{age}, #{gender}, #{character})
+        insert into web_pj.user(id, password, age, gender, role)
+        values (#{id}, #{password}, #{age}, #{gender}, #{role})
     </insert>
 
     <update id="changeCharacter">
         update web_pj.user
-        set user.character = #{character}
+        set user.role = #{role}
         where user.id = #{id}
     </update>
 

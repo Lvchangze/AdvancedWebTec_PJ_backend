@@ -3,6 +3,7 @@
 <mapper namespace="com.fudan.webpj.repository.HistoryRepository">
 
     <resultMap id="HistoryResultMap" type="com.fudan.webpj.entity.History">
+        <result column="historyId" jdbcType="INTEGER" property="historyId"/>
         <result column="type" jdbcType="VARCHAR" property="type"/>
         <result column="userId" jdbcType="VARCHAR" property="userId"/>
         <result column="message" jdbcType="VARCHAR" property="message"/>
@@ -13,11 +14,11 @@
     <select id="findHistoryByUserId" resultType="com.fudan.webpj.entity.History">
         select *
         from web_pj.history
-        where userId = #{userId}
+        where user_id = #{userId}
     </select>
 
     <insert id="addNewHistory">
-        insert into web_pj.history(type, userId, message, time, roomId)
+        insert into web_pj.history(type, user_id, message, time, room_id)
         values (#{type}, #{userId}, #{time}, #{roomId})
     </insert>
 

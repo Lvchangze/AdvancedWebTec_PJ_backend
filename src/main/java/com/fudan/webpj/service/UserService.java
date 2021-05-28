@@ -19,7 +19,7 @@ public class UserService {
 
     public String[] login(String id, String password) {
         User user = userRepository.findUserById(id);
-        if (user == null || !user.getPassWord().equals(password)) {
+        if (user == null || !user.getPassword().equals(password)) {
             return null;
         }
         String[] result = new String[2];
@@ -28,12 +28,12 @@ public class UserService {
         return result;
     }
 
-    public User register(String id, String password, int age, int gender, String character) {
+    public User register(String id, String password, int age, int gender, String role) {
         //用户名已经存在
         if (userRepository.findUserById(id) != null) {
             return null;
         }
-        userRepository.addNewUser(id, password, age, gender, character);
+        userRepository.addNewUser(id, password, age, gender, role);
         return userRepository.findUserById(id);
     }
 
@@ -41,11 +41,11 @@ public class UserService {
         return userRepository.findUserById(id);
     }
 
-    public User changeCharacter(String id, String character){
+    public User changeCharacter(String id, String role){
         if(userRepository.findUserById(id) == null){
             return null;
         }
-        userRepository.changeCharacter(id, character);
+        userRepository.changeCharacter(id, role);
         return userRepository.findUserById(id);
     }
 }

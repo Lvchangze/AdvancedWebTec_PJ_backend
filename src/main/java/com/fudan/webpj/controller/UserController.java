@@ -46,10 +46,10 @@ public class UserController {
             @RequestParam("password") String password,
             @RequestParam("age") int age,
             @RequestParam("gender") int gender,
-            @RequestParam("character") String character
+            @RequestParam("role") String role
     ) {
         HashMap<String, Object> hashMap = new HashMap<>();
-        User user = userService.register(id, password, age, gender, character);
+        User user = userService.register(id, password, age, gender, role);
         hashMap.put("user", user);
         if (user != null) {
             logger.info("new user:" + user);
@@ -71,10 +71,10 @@ public class UserController {
     @RequestMapping("/changeCharacter")
     public ResponseEntity<Object> changeCharacter(
             @RequestParam("userId") String id,
-            @RequestParam("character") String character
+            @RequestParam("role") String role
     ){
         HashMap<String, Object> hashMap = new HashMap<>();
-        User user = userService.changeCharacter(id, character);
+        User user = userService.changeCharacter(id, role);
         if (user != null){
             hashMap.put("result", 0);
         }else {
