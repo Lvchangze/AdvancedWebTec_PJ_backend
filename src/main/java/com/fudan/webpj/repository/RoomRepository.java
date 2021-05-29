@@ -1,8 +1,10 @@
 package com.fudan.webpj.repository;
 
-import org.springframework.stereotype.Repository;
+import com.fudan.webpj.entity.Room;
+import org.springframework.data.repository.CrudRepository;
 
-@Repository
-public interface RoomRepository {
+import java.util.List;
 
+public interface RoomRepository extends CrudRepository<Room, Integer> {
+    List<Room> findAll();
 }

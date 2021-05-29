@@ -55,7 +55,7 @@ public class JwtReFilter extends OncePerRequestFilter {
             System.out.println("token:" + token);
             try {
                 String id = jwtTokenUtil.getUserId(token);
-                User user = userRepository.findUserById(id);
+                User user = userRepository.findByUserId(id);
                 if (!jwtTokenUtil.validateToken(token) || user == null) {
                     System.out.println("超时或者用户不存在");
                     response401(response);

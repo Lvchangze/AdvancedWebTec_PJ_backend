@@ -1,13 +1,13 @@
 package com.fudan.webpj.repository;
 
 import com.fudan.webpj.entity.User;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.repository.CrudRepository;
 
-@Repository
-public interface UserRepository {
-    User findUserById(String id);
+import java.util.*;
 
-    void addNewUser(String id, String password, int age, int gender, String role);
 
-    void changeCharacter(String id, String role);
+public interface UserRepository extends CrudRepository<User, String> {
+
+    User findByUserId(String userId);
+
 }

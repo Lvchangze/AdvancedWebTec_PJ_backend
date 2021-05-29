@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.List;
 
 @RestController
 public class HistoryController {
@@ -20,9 +21,9 @@ public class HistoryController {
     }
 
     @RequestMapping("/getUserHistory")
-    public ResponseEntity<Object> login(@RequestParam("userId") String userId){
+    public ResponseEntity<Object> getUserHistory(@RequestParam("userId") String userId){
         HashMap<String, Object> hashMap = new HashMap<>();
-        History[] histories = historyService.getUserHistory(userId);
+        List<History> histories = historyService.getUserHistory(userId);
         hashMap.put("list", histories);
         return ResponseEntity.ok(hashMap);
     }

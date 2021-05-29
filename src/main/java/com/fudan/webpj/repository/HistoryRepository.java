@@ -1,11 +1,13 @@
 package com.fudan.webpj.repository;
 
 import com.fudan.webpj.entity.History;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.repository.CrudRepository;
 
-@Repository
-public interface HistoryRepository {
-    History[] findHistoryByUserId(String userId);
+import java.util.List;
 
-    void addNewHistory(String type, String userId, String message, String time , int roomId);
+
+public interface HistoryRepository extends CrudRepository<History, Integer> {
+
+    List<History> findAllByUserId(String userId);
+
 }

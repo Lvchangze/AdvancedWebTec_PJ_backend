@@ -5,6 +5,8 @@ import com.fudan.webpj.repository.HistoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class HistoryService {
     HistoryRepository historyRepository;
@@ -14,12 +16,8 @@ public class HistoryService {
         this.historyRepository = historyRepository;
     }
 
-    public History[] getUserHistory(String userId){
-        return historyRepository.findHistoryByUserId(userId);
-    }
-
-    public void addNewHistory(String type, String userId, String message, String time , int roomId){
-        historyRepository.addNewHistory(type, userId, message, time , roomId);
+    public List<History> getUserHistory(String userId){
+        return historyRepository.findAllByUserId(userId);
     }
 
 }

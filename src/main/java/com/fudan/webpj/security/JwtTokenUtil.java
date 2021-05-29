@@ -23,7 +23,7 @@ public class JwtTokenUtil implements Serializable {
     }
 
     public String generateToken(User user) {
-        JwtInfo jwtInfo = new JwtInfo(user.getId());
+        JwtInfo jwtInfo = new JwtInfo(user.getUserId());
         return Jwts.builder()
                 .claim(JwtConstants.JWT_KEY_USER_ID, jwtInfo.getUid())
                 .setIssuedAt(new Date(System.currentTimeMillis()))

@@ -9,7 +9,7 @@ import javax.persistence.Id;
 @Data
 public class User {
     @Id
-    private String id;
+    private String userId;
     private String password;
     private int age;
     private int gender;
