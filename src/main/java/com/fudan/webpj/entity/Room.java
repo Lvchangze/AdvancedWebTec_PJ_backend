@@ -12,4 +12,5 @@ public class Room {
     private int roomId;
     private String name;
     private String description;
+    private int count; // 在线人数
 }
