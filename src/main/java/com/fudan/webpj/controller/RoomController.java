@@ -19,7 +19,7 @@ public class RoomController {
     }
 
     @RequestMapping("/getAllRooms")
-    public ResponseEntity<Object> onlinePlayerCount(){
+    public ResponseEntity<Object> getAllRooms(){
         HashMap<String, Object> hashMap = new HashMap<>();
         List<Room> rooms = roomService.getAllRooms();
         hashMap.put("rooms", rooms);
