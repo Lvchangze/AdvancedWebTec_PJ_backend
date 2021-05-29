@@ -18,7 +18,7 @@
     </select>
 
     <insert id="addNewHistory">
-        insert into web_pj.history(type, user_id, message, time, room_id)
+        insert into web_pj.history(history.type, user_id, message, history.time, room_id)
         values (#{type}, #{userId}, #{time}, #{roomId})
     </insert>
 

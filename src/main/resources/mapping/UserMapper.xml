@@ -17,7 +17,7 @@
     </select>
 
     <insert id="addNewUser">
-        insert into web_pj.user(id, password, age, gender, role)
+        insert into web_pj.user(id, password, age, gender, user.role)
         values (#{id}, #{password}, #{age}, #{gender}, #{role})
     </insert>
 

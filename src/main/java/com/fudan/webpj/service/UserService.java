@@ -41,11 +41,12 @@ public class UserService {
         return userRepository.findUserById(id);
     }
 
-    public User changeCharacter(String id, String role){
-        if(userRepository.findUserById(id) == null){
+    public User changeCharacter(String id, String role) {
+        if (userRepository.findUserById(id) == null) {
             return null;
         }
         userRepository.changeCharacter(id, role);
         return userRepository.findUserById(id);
     }
+
 }

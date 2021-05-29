@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @ServerEndpoint(value = "/ws/{roomId}/{userId}")
 @Slf4j
 public class WebSocketServer {
-    private static final Map<Integer, Map<String, Session>> roomList = new ConcurrentHashMap<>();
+    public static final Map<Integer, Map<String, Session>> roomList = new ConcurrentHashMap<>();
 
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
