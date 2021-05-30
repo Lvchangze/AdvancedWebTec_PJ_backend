@@ -9,4 +9,6 @@ public interface RoomRepository extends CrudRepository<Room, Integer> {
 
     List<Room> findAll();
 
+    Room findRoomByRoomId(int roomId);
+
 }

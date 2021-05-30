@@ -25,8 +25,19 @@ public class RoomService {
             } else {
                 room.setCount(WebSocketServer.roomList.get(room.getRoomId()).size());
             }
-            roomRepository.save(room);
         }
         return rooms;
+    }
+
+    public void addCount(int roomId){
+        Room roomToDB = roomRepository.findRoomByRoomId(roomId);
+        roomToDB.setCount(roomToDB.getCount() + 1);
+        roomRepository.save(roomToDB);
+    }
+
+    public void minusCount(int roomId){
+        Room roomToDB = roomRepository.findRoomByRoomId(roomId);
+        roomToDB.setCount(roomToDB.getCount() - 1);
+        roomRepository.save(roomToDB);
     }
 }
