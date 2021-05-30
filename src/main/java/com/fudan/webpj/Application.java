@@ -4,23 +4,25 @@ import com.fudan.webpj.entity.History;
 import com.fudan.webpj.entity.Room;
 import com.fudan.webpj.repository.HistoryRepository;
 import com.fudan.webpj.repository.RoomRepository;
+import com.fudan.webpj.websocket.WebSocketServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.*;
 
 @SpringBootApplication
 public class Application implements CommandLineRunner {
-
     @Autowired
     private RoomRepository roomRepository;
     @Autowired
     private HistoryRepository historyRepository;
 
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        ConfigurableApplicationContext configurableApplicationContext = SpringApplication.run(Application.class ,args);
+        WebSocketServer.setApplicationContext(configurableApplicationContext);
     }
 
     @Override

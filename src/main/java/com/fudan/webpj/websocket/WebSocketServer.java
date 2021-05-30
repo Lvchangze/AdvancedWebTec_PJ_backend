@@ -1,14 +1,13 @@
 package com.fudan.webpj.websocket;
 
 import com.alibaba.fastjson.JSON;
-import com.fudan.webpj.controller.UserController;
 import com.fudan.webpj.service.HistoryService;
 import com.fudan.webpj.service.RoomService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.socket.server.standard.SpringConfigurator;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
@@ -18,24 +17,29 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component
 @ServerEndpoint(value = "/ws/{roomId}/{userId}")
-@Slf4j
+@Component
 public class WebSocketServer {
-    @Autowired
+    private static ApplicationContext applicationContext;
+
+    public static void setApplicationContext(ApplicationContext context) {
+        WebSocketServer.applicationContext = context;
+    }
+
     private RoomService roomService;
-    @Autowired
     private HistoryService historyService;
 
     public static final Map<Integer, Map<String, Session>> roomList = new ConcurrentHashMap<>();
 
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private final Logger logger = LoggerFactory.getLogger(UserController.class);
+    private final Logger logger = LoggerFactory.getLogger(WebSocketServer.class);
 
     @OnOpen
     public void onOpen(@PathParam("roomId") int roomId,
                        @PathParam("userId") String userId,
                        Session session) {
+        roomService = applicationContext.getBean(RoomService.class);
+        historyService = applicationContext.getBean(HistoryService.class);
         //房间不存在时，创建房间
         if (!roomList.containsKey(roomId)) {
             Map<String, Session> room = new ConcurrentHashMap<>();
@@ -90,7 +94,7 @@ public class WebSocketServer {
                         message.getMsg(),
                         roomId,
                         formatter.format(new Date(System.currentTimeMillis())),
-                        Message.ENTER,
+                        Message.SPEAK,
                         userId
                 );
                 break;
