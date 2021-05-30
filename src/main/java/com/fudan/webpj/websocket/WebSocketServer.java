@@ -22,10 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @ServerEndpoint(value = "/ws/{roomId}/{userId}")
 @Slf4j
 public class WebSocketServer {
-
     @Autowired
     private RoomService roomService;
-
     @Autowired
     private HistoryService historyService;
 
@@ -130,7 +128,7 @@ public class WebSocketServer {
         );
     }
 
-
+    //向指定房间内所有用户发送广播信息
     private static void broadcastInsideRoom(int roomId, String msg) {
         Map<String, Session> room = roomList.get(roomId);
         room.forEach((userId, session) -> {
@@ -140,6 +138,18 @@ public class WebSocketServer {
                 e.printStackTrace();
             }
         });
+    }
+
+    //向指定房间内指定用户发送信息
+    private static void sendToSomeone(int roomId, String userId, String msg) {
+        Session targetSession = roomList.get(roomId).get(userId);
+        if (targetSession != null) {
+            try {
+                targetSession.getBasicRemote().sendText(msg);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }
