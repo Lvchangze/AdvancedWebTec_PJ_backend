@@ -12,9 +12,10 @@ import lombok.Data;
 public class Message {
 
     public static final String ENTER = "ENTER";
+    public static final String ROLE = "ROLE";
     public static final String SPEAK = "SPEAK";
     public static final String QUIT = "QUIT";
-    public static final String MOVE = "MOVE";
+    public static final String POSITION = "POSITION";
     public static final String LIFT = "LIFT";
     public static final String DROP = "DROP";
 
@@ -30,6 +31,4 @@ public class Message {
     public static String jsonStr(String type, String userId, String msg, String time) {
         return JSON.toJSONString(new Message(type, userId, msg, time));
     }
-
-
 }

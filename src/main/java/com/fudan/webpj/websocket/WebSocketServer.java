@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.server.standard.SpringConfigurator;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
@@ -32,6 +31,7 @@ public class WebSocketServer {
     private UserService userService;
 
     public static final Map<Integer, Map<String, Session>> roomList = new ConcurrentHashMap<>();
+    private final Map<String, String> locations = new ConcurrentHashMap<>(); // 记录各个用户的位置
 
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private final Logger logger = LoggerFactory.getLogger(WebSocketServer.class);
@@ -51,6 +51,8 @@ public class WebSocketServer {
         } else {
             roomList.get(roomId).put(userId, session);
         }
+        //记录初始位置
+        locations.put(userId, "{\"x\":0,\"y\":0,\"z\":-170}");
         //有新用户连接，更新room的在线人数
         roomService.addCount(roomId);
         //记录历史
@@ -71,6 +73,32 @@ public class WebSocketServer {
                         formatter.format(new Date(System.currentTimeMillis()))
                 )
         );
+        Map<String, Session> room = roomList.get(roomId);
+        room.forEach((_userId, _session) -> {
+            try {
+                //当前用户告诉前端，当前所有其他人的形象
+                session.getBasicRemote().sendText(
+                        Message.jsonStr(
+                                Message.ROLE,
+                                _userId,
+                                userService.getUserInfo(_userId).getRole(),
+                                formatter.format(new Date(System.currentTimeMillis()))
+                        )
+                );
+                Thread.sleep(500);
+                //当前用户告诉前端，当前所有其他人的位置
+                session.getBasicRemote().sendText(
+                        Message.jsonStr(
+                                Message.POSITION,
+                                _userId,
+                                locations.get(_userId),
+                                formatter.format(new Date(System.currentTimeMillis()))
+                        )
+                );
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     @OnMessage
@@ -79,6 +107,7 @@ public class WebSocketServer {
                           Session session,
                           String msg
     ) {
+        System.out.println(msg);
         Message message = JSON.parseObject(msg, Message.class);
         switch (message.getType()) {
             case "SPEAK":
@@ -101,17 +130,18 @@ public class WebSocketServer {
                         userId
                 );
                 break;
-            case "MOVE":
-                logger.info("MOVE");
+            case "POSITION":
+                logger.info("POSITION");
                 broadcastInsideRoom(
                         roomId,
                         Message.jsonStr(
-                                Message.MOVE,
+                                Message.POSITION,
                                 userId,
                                 message.getMsg(),
                                 formatter.format(new Date(System.currentTimeMillis()))
                         )
                 );
+                locations.replace(userId, message.getMsg());
                 break;
         }
     }
