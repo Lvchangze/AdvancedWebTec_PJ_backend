@@ -30,8 +30,10 @@ public class WebSocketServer {
     private HistoryService historyService;
     private UserService userService;
 
+    //记录各个房间号下各个用户的session
     public static final Map<Integer, Map<String, Session>> roomList = new ConcurrentHashMap<>();
-    private static final Map<String, String> locations = new ConcurrentHashMap<>(); // 记录各个用户的位置
+    // 记录各个房间号下各个用户的位置
+    private static final Map<Integer, Map<String, String>> locationList = new ConcurrentHashMap<>();
 
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private final Logger logger = LoggerFactory.getLogger(WebSocketServer.class);
@@ -43,16 +45,23 @@ public class WebSocketServer {
         roomService = applicationContext.getBean(RoomService.class);
         historyService = applicationContext.getBean(HistoryService.class);
         userService = applicationContext.getBean(UserService.class);
-        //房间不存在时，创建房间
-        if (!roomList.containsKey(roomId)) {
+
+        if (!roomList.containsKey(roomId)) {//房间号不存在时，创建房间
             Map<String, Session> room = new ConcurrentHashMap<>();
             room.put(userId, session);
             roomList.put(roomId, room);
         } else {
             roomList.get(roomId).put(userId, session);
         }
-        //记录初始位置
-        locations.put(userId, "{\"x\":0,\"y\":0,\"z\":-170}");
+
+        if (!locationList.containsKey(roomId)) {
+            Map<String, String> locations = new ConcurrentHashMap<>();
+            locations.put(userId, "{\"x\":0,\"y\":0,\"z\":-170}");
+            locationList.put(roomId, locations);
+        } else {
+            locationList.get(roomId).put(userId, "{\"x\":0,\"y\":0,\"z\":-170}");
+        }
+
         //有新用户连接，更新room的在线人数
         roomService.addCount(roomId);
         //记录历史
@@ -63,7 +72,8 @@ public class WebSocketServer {
                 Message.ENTER,
                 userId
         );
-        //向所有人广播，谁进入了
+
+        //向所有人广播，哪个userId进入
         broadcastInsideRoom(
                 roomId,
                 Message.jsonStr(
@@ -73,6 +83,7 @@ public class WebSocketServer {
                         formatter.format(new Date(System.currentTimeMillis()))
                 )
         );
+        //向所有人广播，哪个role进入了
         broadcastInsideRoom(
                 roomId,
                 Message.jsonStr(
@@ -96,13 +107,13 @@ public class WebSocketServer {
                             )
                     );
                     Thread.sleep(5000);
-                    System.out.println(_userId + ":" + locations.get(_userId));
+                    System.out.println(_userId + ":" + locationList.get(roomId).get(_userId));
                     //当前用户告诉前端，当前所有其他人的位置
                     session.getBasicRemote().sendText(
                             Message.jsonStr(
                                     Message.POSITION,
                                     _userId,
-                                    locations.get(_userId),
+                                    locationList.get(roomId).get(_userId),
                                     formatter.format(new Date(System.currentTimeMillis()))
                             )
                     );
@@ -153,7 +164,7 @@ public class WebSocketServer {
                                 formatter.format(new Date(System.currentTimeMillis()))
                         )
                 );
-                locations.put(userId, message.getMsg());
+                locationList.get(roomId).put(userId, message.getMsg());
                 break;
         }
     }
@@ -163,7 +174,7 @@ public class WebSocketServer {
                         @PathParam("userId") String userId,
                         Session session) {
         roomList.get(roomId).remove(userId);
-        locations.remove(userId);
+        locationList.get(roomId).remove(userId);
         //有用户断开，更新room的在线人数
         roomService.minusCount(roomId);
         //记录历史

@@ -41,14 +41,6 @@ public class Application implements CommandLineRunner {
         }
         roomRepository.saveAll(rooms);
 
-        History history = new History();
-        history.setType("test");
-        history.setUserId("test");
-        history.setMessage("test");
-        history.setRoomId(1);
-        history.setTime("test");
-        historyRepository.save(history);
-
         User user1 = new User();
         user1.setUserId("lvchangze");
         user1.setPassword("lvchangze");
