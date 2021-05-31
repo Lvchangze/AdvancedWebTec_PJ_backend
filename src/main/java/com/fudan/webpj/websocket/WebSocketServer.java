@@ -3,6 +3,7 @@ package com.fudan.webpj.websocket;
 import com.alibaba.fastjson.JSON;
 import com.fudan.webpj.service.HistoryService;
 import com.fudan.webpj.service.RoomService;
+import com.fudan.webpj.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -28,6 +29,7 @@ public class WebSocketServer {
 
     private RoomService roomService;
     private HistoryService historyService;
+    private UserService userService;
 
     public static final Map<Integer, Map<String, Session>> roomList = new ConcurrentHashMap<>();
 
@@ -40,6 +42,7 @@ public class WebSocketServer {
                        Session session) {
         roomService = applicationContext.getBean(RoomService.class);
         historyService = applicationContext.getBean(HistoryService.class);
+        userService = applicationContext.getBean(UserService.class);
         //房间不存在时，创建房间
         if (!roomList.containsKey(roomId)) {
             Map<String, Session> room = new ConcurrentHashMap<>();
@@ -64,7 +67,7 @@ public class WebSocketServer {
                 Message.jsonStr(
                         Message.ENTER,
                         userId,
-                        userId + "进入Room" + roomId,
+                        userService.getUserInfo(userId).getRole(),
                         formatter.format(new Date(System.currentTimeMillis()))
                 )
         );
@@ -80,8 +83,9 @@ public class WebSocketServer {
         switch (message.getType()) {
             case "SPEAK":
                 logger.info("SPEAK");
-                broadcastInsideRoom(
+                broadcastExceptSomeone(
                         roomId,
+                        userId,
                         Message.jsonStr(
                                 Message.SPEAK,
                                 userId,
@@ -140,6 +144,19 @@ public class WebSocketServer {
                 session.getBasicRemote().sendText(msg);
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        });
+    }
+
+    private static void broadcastExceptSomeone(int roomId, String userId, String msg) {
+        Map<String, Session> room = roomList.get(roomId);
+        room.forEach((targetUserId, session) -> {
+            if (!userId.equals(targetUserId)) {
+                try {
+                    session.getBasicRemote().sendText(msg);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
