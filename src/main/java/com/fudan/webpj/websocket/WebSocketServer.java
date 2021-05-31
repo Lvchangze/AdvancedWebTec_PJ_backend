@@ -55,7 +55,7 @@ public class WebSocketServer {
         roomService.addCount(roomId);
         //记录历史
         historyService.addNewHistory(
-                "",
+                userId + "进入Room" + roomId,
                 roomId,
                 formatter.format(new Date(System.currentTimeMillis())),
                 Message.ENTER,
@@ -83,9 +83,8 @@ public class WebSocketServer {
         switch (message.getType()) {
             case "SPEAK":
                 logger.info("SPEAK");
-                broadcastExceptSomeone(
+                broadcastInsideRoom(
                         roomId,
-                        userId,
                         Message.jsonStr(
                                 Message.SPEAK,
                                 userId,
@@ -104,7 +103,15 @@ public class WebSocketServer {
                 break;
             case "MOVE":
                 logger.info("MOVE");
-
+                broadcastInsideRoom(
+                        roomId,
+                        Message.jsonStr(
+                                Message.MOVE,
+                                userId,
+                                message.getMsg(),
+                                formatter.format(new Date(System.currentTimeMillis()))
+                        )
+                );
                 break;
         }
     }
@@ -118,7 +125,7 @@ public class WebSocketServer {
         roomService.minusCount(roomId);
         //记录历史
         historyService.addNewHistory(
-                "",
+                userId + "退出Room" + roomId,
                 roomId,
                 formatter.format(new Date(System.currentTimeMillis())),
                 Message.QUIT,
@@ -144,19 +151,6 @@ public class WebSocketServer {
                 session.getBasicRemote().sendText(msg);
             } catch (IOException e) {
                 e.printStackTrace();
-            }
-        });
-    }
-
-    private static void broadcastExceptSomeone(int roomId, String userId, String msg) {
-        Map<String, Session> room = roomList.get(roomId);
-        room.forEach((targetUserId, session) -> {
-            if (!userId.equals(targetUserId)) {
-                try {
-                    session.getBasicRemote().sendText(msg);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
         });
     }
