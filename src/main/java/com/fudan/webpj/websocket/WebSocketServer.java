@@ -171,6 +171,7 @@ public class WebSocketServer {
                         formatter.format(new Date(System.currentTimeMillis()))
                 )
         );
+        locations.remove(userId);
     }
 
     //向指定房间内所有用户发送广播信息
