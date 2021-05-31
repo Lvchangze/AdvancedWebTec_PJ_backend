@@ -31,7 +31,7 @@ public class WebSocketServer {
     private UserService userService;
 
     public static final Map<Integer, Map<String, Session>> roomList = new ConcurrentHashMap<>();
-    private final Map<String, String> locations = new ConcurrentHashMap<>(); // 记录各个用户的位置
+    private static final Map<String, String> locations = new ConcurrentHashMap<>(); // 记录各个用户的位置
 
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private final Logger logger = LoggerFactory.getLogger(WebSocketServer.class);
@@ -69,34 +69,46 @@ public class WebSocketServer {
                 Message.jsonStr(
                         Message.ENTER,
                         userId,
+                        userId + "进入Room" + roomId,
+                        formatter.format(new Date(System.currentTimeMillis()))
+                )
+        );
+        broadcastInsideRoom(
+                roomId,
+                Message.jsonStr(
+                        Message.ROLE,
+                        userId,
                         userService.getUserInfo(userId).getRole(),
                         formatter.format(new Date(System.currentTimeMillis()))
                 )
         );
         Map<String, Session> room = roomList.get(roomId);
         room.forEach((_userId, _session) -> {
-            try {
-                //当前用户告诉前端，当前所有其他人的形象
-                session.getBasicRemote().sendText(
-                        Message.jsonStr(
-                                Message.ROLE,
-                                _userId,
-                                userService.getUserInfo(_userId).getRole(),
-                                formatter.format(new Date(System.currentTimeMillis()))
-                        )
-                );
-                Thread.sleep(500);
-                //当前用户告诉前端，当前所有其他人的位置
-                session.getBasicRemote().sendText(
-                        Message.jsonStr(
-                                Message.POSITION,
-                                _userId,
-                                locations.get(_userId),
-                                formatter.format(new Date(System.currentTimeMillis()))
-                        )
-                );
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (!userId.equals(_userId)) {
+                try {
+                    //当前用户告诉前端，当前所有其他人的形象
+                    session.getBasicRemote().sendText(
+                            Message.jsonStr(
+                                    Message.ROLE,
+                                    _userId,
+                                    userService.getUserInfo(_userId).getRole(),
+                                    formatter.format(new Date(System.currentTimeMillis()))
+                            )
+                    );
+                    Thread.sleep(5000);
+                    System.out.println(_userId + ":" + locations.get(_userId));
+                    //当前用户告诉前端，当前所有其他人的位置
+                    session.getBasicRemote().sendText(
+                            Message.jsonStr(
+                                    Message.POSITION,
+                                    _userId,
+                                    locations.get(_userId),
+                                    formatter.format(new Date(System.currentTimeMillis()))
+                            )
+                    );
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
@@ -141,7 +153,7 @@ public class WebSocketServer {
                                 formatter.format(new Date(System.currentTimeMillis()))
                         )
                 );
-                locations.replace(userId, message.getMsg());
+                locations.put(userId, message.getMsg());
                 break;
         }
     }
@@ -151,6 +163,7 @@ public class WebSocketServer {
                         @PathParam("userId") String userId,
                         Session session) {
         roomList.get(roomId).remove(userId);
+        locations.remove(userId);
         //有用户断开，更新room的在线人数
         roomService.minusCount(roomId);
         //记录历史
@@ -171,7 +184,6 @@ public class WebSocketServer {
                         formatter.format(new Date(System.currentTimeMillis()))
                 )
         );
-        locations.remove(userId);
     }
 
     //向指定房间内所有用户发送广播信息

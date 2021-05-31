@@ -2,8 +2,10 @@ package com.fudan.webpj;
 
 import com.fudan.webpj.entity.History;
 import com.fudan.webpj.entity.Room;
+import com.fudan.webpj.entity.User;
 import com.fudan.webpj.repository.HistoryRepository;
 import com.fudan.webpj.repository.RoomRepository;
+import com.fudan.webpj.repository.UserRepository;
 import com.fudan.webpj.websocket.WebSocketServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -19,9 +21,11 @@ public class Application implements CommandLineRunner {
     private RoomRepository roomRepository;
     @Autowired
     private HistoryRepository historyRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     public static void main(String[] args) {
-        ConfigurableApplicationContext configurableApplicationContext = SpringApplication.run(Application.class ,args);
+        ConfigurableApplicationContext configurableApplicationContext = SpringApplication.run(Application.class, args);
         WebSocketServer.setApplicationContext(configurableApplicationContext);
     }
 
@@ -44,5 +48,22 @@ public class Application implements CommandLineRunner {
         history.setRoomId(1);
         history.setTime("test");
         historyRepository.save(history);
+
+        User user1 = new User();
+        user1.setUserId("lvchangze");
+        user1.setPassword("lvchangze");
+        user1.setGender(1);
+        user1.setAge(22);
+        user1.setRole("胡桃");
+        userRepository.save(user1);
+
+        User user2 = new User();
+        user2.setUserId("yangyuhan");
+        user2.setPassword("yangyuhan");
+        user2.setGender(1);
+        user2.setAge(22);
+        user2.setRole("莫娜");
+        userRepository.save(user2);
+
     }
 }
