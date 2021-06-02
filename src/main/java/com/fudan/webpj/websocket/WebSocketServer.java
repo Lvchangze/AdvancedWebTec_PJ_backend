@@ -143,7 +143,14 @@ public class WebSocketServer {
         try {
             Thread.sleep(5000);
             //当前用户告诉前端，当前所有盘子的位置
-            session.getBasicRemote().sendText(diskPositionList.get(roomId));
+            session.getBasicRemote().sendText(
+                    Message.jsonStr(
+                            Message.DISK,
+                            userId,
+                            diskPositionList.get(roomId),
+                            formatter.format(new Date(System.currentTimeMillis()))
+                    )
+            );
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -194,7 +201,7 @@ public class WebSocketServer {
             case "DISK":
                 logger.info("DISK");
                 //更新盘子的位置
-                diskPositionList.put(roomId, msg);
+                diskPositionList.put(roomId, message.getMsg());
             case "LIFT":
                 logger.info("LIFT");
                 broadcastInsideRoom(
@@ -202,7 +209,7 @@ public class WebSocketServer {
                         Message.jsonStr(
                                 Message.LIFT,
                                 userId,
-                                msg,
+                                message.getMsg(),
                                 formatter.format(new Date(System.currentTimeMillis()))
                         )
                 );
@@ -222,7 +229,7 @@ public class WebSocketServer {
                         Message.jsonStr(
                                 Message.DROP,
                                 userId,
-                                msg,
+                                message.getMsg(),
                                 formatter.format(new Date(System.currentTimeMillis()))
                         )
                 );
@@ -264,6 +271,9 @@ public class WebSocketServer {
                         formatter.format(new Date(System.currentTimeMillis()))
                 )
         );
+
+        //TODO:如果最后一个人退出房间，重置盘子的位置
+
     }
 
     //向指定房间内所有用户发送广播信息
