@@ -272,8 +272,12 @@ public class WebSocketServer {
                 )
         );
 
-        //TODO:如果最后一个人退出房间，重置盘子的位置
-
+        //如果最后一个人退出房间，重置该房间的静态变量
+        if (roomList.get(roomId).size() == 0) {
+            diskPositionList.remove(roomId);
+            rolePositionList.remove(roomId);
+            roomList.remove(roomId);
+        }
     }
 
     //向指定房间内所有用户发送广播信息
