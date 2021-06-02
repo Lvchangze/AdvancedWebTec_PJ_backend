@@ -16,6 +16,7 @@ public class Message {
     public static final String SPEAK = "SPEAK";
     public static final String QUIT = "QUIT";
     public static final String POSITION = "POSITION";
+    public static final String DISK = "DISK";
     public static final String LIFT = "LIFT";
     public static final String DROP = "DROP";
 

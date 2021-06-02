@@ -33,7 +33,9 @@ public class WebSocketServer {
     //记录各个房间号下各个用户的session
     public static final Map<Integer, Map<String, Session>> roomList = new ConcurrentHashMap<>();
     // 记录各个房间号下各个用户的位置
-    private static final Map<Integer, Map<String, String>> locationList = new ConcurrentHashMap<>();
+    private static final Map<Integer, Map<String, String>> rolePositionList = new ConcurrentHashMap<>();
+    // 记录各个房间号下各个盘子的位置
+    private static final Map<Integer, String> diskPositionList = new ConcurrentHashMap<>();
 
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private final Logger logger = LoggerFactory.getLogger(WebSocketServer.class);
@@ -54,12 +56,26 @@ public class WebSocketServer {
             roomList.get(roomId).put(userId, session);
         }
 
-        if (!locationList.containsKey(roomId)) {
+        if (!rolePositionList.containsKey(roomId)) {
             Map<String, String> locations = new ConcurrentHashMap<>();
             locations.put(userId, "{\"x\":0,\"y\":0,\"z\":-170}");
-            locationList.put(roomId, locations);
+            rolePositionList.put(roomId, locations);
         } else {
-            locationList.get(roomId).put(userId, "{\"x\":0,\"y\":0,\"z\":-170}");
+            rolePositionList.get(roomId).put(userId, "{\"x\":0,\"y\":0,\"z\":-170}");
+        }
+
+        if (!diskPositionList.containsKey(roomId)) {
+            switch (roomId) {
+                case 1:
+                    diskPositionList.put(roomId, "[{\"location\":1,\"position\":3},{\"location\":1,\"position\":2},{\"location\":1,\"position\":1}]");
+                    break;
+                case 2:
+                    diskPositionList.put(roomId, "[{\"location\":1,\"position\":4},{\"location\":1,\"position\":3},{\"location\":1,\"position\":2},{\"location\":1,\"position\":1}]");
+                    break;
+                case 3:
+                    diskPositionList.put(roomId, "[{\"location\":1,\"position\":5},{\"location\":1,\"position\":4},{\"location\":1,\"position\":3},{\"location\":1,\"position\":2},{\"location\":1,\"position\":1}]");
+                    break;
+            }
         }
 
         //有新用户连接，更新room的在线人数
@@ -93,6 +109,7 @@ public class WebSocketServer {
                         formatter.format(new Date(System.currentTimeMillis()))
                 )
         );
+        //在刚连接时，需要向前端广播，当前状态下其他所有人物的信息
         Map<String, Session> room = roomList.get(roomId);
         room.forEach((_userId, _session) -> {
             if (!userId.equals(_userId)) {
@@ -107,13 +124,13 @@ public class WebSocketServer {
                             )
                     );
                     Thread.sleep(5000);
-                    System.out.println(_userId + ":" + locationList.get(roomId).get(_userId));
+                    System.out.println(_userId + ":" + rolePositionList.get(roomId).get(_userId));
                     //当前用户告诉前端，当前所有其他人的位置
                     session.getBasicRemote().sendText(
                             Message.jsonStr(
                                     Message.POSITION,
                                     _userId,
-                                    locationList.get(roomId).get(_userId),
+                                    rolePositionList.get(roomId).get(_userId),
                                     formatter.format(new Date(System.currentTimeMillis()))
                             )
                     );
@@ -122,6 +139,14 @@ public class WebSocketServer {
                 }
             }
         });
+
+        try {
+            Thread.sleep(5000);
+            //当前用户告诉前端，当前所有盘子的位置
+            session.getBasicRemote().sendText(diskPositionList.get(roomId));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @OnMessage
@@ -164,7 +189,51 @@ public class WebSocketServer {
                                 formatter.format(new Date(System.currentTimeMillis()))
                         )
                 );
-                locationList.get(roomId).put(userId, message.getMsg());
+                rolePositionList.get(roomId).put(userId, message.getMsg());
+                break;
+            case "DISK":
+                logger.info("DISK");
+                //更新盘子的位置
+                diskPositionList.put(roomId, msg);
+            case "LIFT":
+                logger.info("LIFT");
+                broadcastInsideRoom(
+                        roomId,
+                        Message.jsonStr(
+                                Message.LIFT,
+                                userId,
+                                msg,
+                                formatter.format(new Date(System.currentTimeMillis()))
+                        )
+                );
+                //记录历史
+                historyService.addNewHistory(
+                        userId + "举起盘子",
+                        roomId,
+                        formatter.format(new Date(System.currentTimeMillis())),
+                        Message.LIFT,
+                        userId
+                );
+                break;
+            case "DROP":
+                logger.info("DROP");
+                broadcastInsideRoom(
+                        roomId,
+                        Message.jsonStr(
+                                Message.DROP,
+                                userId,
+                                msg,
+                                formatter.format(new Date(System.currentTimeMillis()))
+                        )
+                );
+                //记录历史
+                historyService.addNewHistory(
+                        userId + "放下盘子",
+                        roomId,
+                        formatter.format(new Date(System.currentTimeMillis())),
+                        Message.DROP,
+                        userId
+                );
                 break;
         }
     }
@@ -174,7 +243,7 @@ public class WebSocketServer {
                         @PathParam("userId") String userId,
                         Session session) {
         roomList.get(roomId).remove(userId);
-        locationList.get(roomId).remove(userId);
+        rolePositionList.get(roomId).remove(userId);
         //有用户断开，更新room的在线人数
         roomService.minusCount(roomId);
         //记录历史
