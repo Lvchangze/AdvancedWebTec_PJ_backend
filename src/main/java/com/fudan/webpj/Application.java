@@ -57,5 +57,13 @@ public class Application implements CommandLineRunner {
         user2.setRole("莫娜");
         userRepository.save(user2);
 
+        User user3 = new User();
+        user3.setUserId("xuyatao");
+        user3.setPassword("xuyatao");
+        user3.setGender(1);
+        user3.setAge(22);
+        user3.setRole("钟离");
+        userRepository.save(user3);
+
     }
 }
