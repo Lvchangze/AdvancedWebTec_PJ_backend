@@ -1,5 +1,6 @@
 package com.fudan.webpj.security;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fudan.webpj.entity.User;
 import com.fudan.webpj.repository.UserRepository;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -13,6 +14,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 @Component
 public class JwtReFilter extends OncePerRequestFilter {
@@ -73,7 +75,12 @@ public class JwtReFilter extends OncePerRequestFilter {
         }
     }
 
-    private void response401(HttpServletResponse response){
-        response.setStatus(401);
+    private void response401(HttpServletResponse response) throws IOException {
+        PrintWriter writer = response.getWriter();
+        JSONObject data = new JSONObject();
+        data.put("state", 401);
+        writer.print(data);
+        writer.flush();
+        writer.close();
     }
 }

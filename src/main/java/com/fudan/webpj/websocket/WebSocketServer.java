@@ -202,6 +202,7 @@ public class WebSocketServer {
                 logger.info("DISK");
                 //更新盘子的位置
                 diskPositionList.put(roomId, message.getMsg());
+                break;
             case "LIFT":
                 logger.info("LIFT");
                 broadcastInsideRoom(
