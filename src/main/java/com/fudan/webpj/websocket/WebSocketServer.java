@@ -281,6 +281,11 @@ public class WebSocketServer {
         }
     }
 
+    @OnError
+    public void onError(Session session, Throwable error) {
+        error.printStackTrace();
+    }
+
     //向指定房间内所有用户发送广播信息
     private static void broadcastInsideRoom(int roomId, String msg) {
         Map<String, Session> room = roomList.get(roomId);
